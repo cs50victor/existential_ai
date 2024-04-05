@@ -19,14 +19,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let use_stream = false;
 
     loop {
-        
         let mut lock = stdout().lock();
 
         print!("\n> Oogway : \n\t");
 
         if use_stream {
             let mut response_stream = master_oogway.ask(question.clone()).await?;
-            
+
             while let Some(result) = response_stream.next().await {
                 match result {
                     Ok(response) => {
@@ -42,8 +41,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 }
                 stdout().flush()?;
             }
-        }
-        else {
+        } else {
             let response = master_oogway.ask_and_wait(question.clone()).await?;
             for choice in response.choices {
                 write!(lock, "{}", choice.message.content.unwrap_or_default()).unwrap();

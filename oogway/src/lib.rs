@@ -3,7 +3,8 @@ use async_openai::{
     error::OpenAIError,
     types::{
         ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
-        ChatCompletionResponseStream, CreateChatCompletionRequestArgs, CreateChatCompletionResponse,
+        ChatCompletionResponseStream, CreateChatCompletionRequestArgs,
+        CreateChatCompletionResponse,
     },
     Client,
 };
@@ -31,37 +32,35 @@ impl Oogway {
         question: String,
     ) -> Result<ChatCompletionResponseStream, OpenAIError> {
         let request = CreateChatCompletionRequestArgs::default()
-        .model(&self.model_name)
-        .max_tokens(256u16)
-        .messages([
-            ChatCompletionRequestSystemMessageArgs::default()
-                .content(SYSTEM_PROMPT)
-                .build()?
-                .into(),
-            ChatCompletionRequestUserMessageArgs::default()
-            .content(question)
-            .build()?
-            .into()])
-        .build()?;
+            .model(&self.model_name)
+            .max_tokens(256u16)
+            .messages([
+                ChatCompletionRequestSystemMessageArgs::default()
+                    .content(SYSTEM_PROMPT)
+                    .build()?
+                    .into(),
+                ChatCompletionRequestUserMessageArgs::default().content(question).build()?.into(),
+            ])
+            .build()?;
 
         self.client.chat().create_stream(request).await
     }
 
-    pub async fn ask_and_wait(&mut self, question: String) -> Result<CreateChatCompletionResponse, OpenAIError> {
-        
+    pub async fn ask_and_wait(
+        &mut self,
+        question: String,
+    ) -> Result<CreateChatCompletionResponse, OpenAIError> {
         let request = CreateChatCompletionRequestArgs::default()
-        .model(&self.model_name)
-        .max_tokens(256u16)
-        .messages([
-            ChatCompletionRequestSystemMessageArgs::default()
-                .content(SYSTEM_PROMPT)
-                .build()?
-                .into(),
-            ChatCompletionRequestUserMessageArgs::default()
-            .content(question)
-            .build()?
-            .into()])
-        .build()?;
+            .model(&self.model_name)
+            .max_tokens(256u16)
+            .messages([
+                ChatCompletionRequestSystemMessageArgs::default()
+                    .content(SYSTEM_PROMPT)
+                    .build()?
+                    .into(),
+                ChatCompletionRequestUserMessageArgs::default().content(question).build()?.into(),
+            ])
+            .build()?;
 
         self.client.chat().create(request).await
     }
