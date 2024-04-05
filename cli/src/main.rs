@@ -16,7 +16,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     print!("\n> You :\n\t{question}");
 
     // for dev / testing
-    let use_stream = false;
+    let use_stream = true;
 
     loop {
         let mut lock = stdout().lock();
