@@ -15,27 +15,39 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     print!("\n> You :\n\t{question}");
 
+    // for dev / testing
+    let use_stream = false;
+
     loop {
-        let mut response_stream = master_oogway.ask(question.clone()).await?;
+        
+        let mut lock = stdout().lock();
 
         print!("\n> Oogway : \n\t");
 
-        let mut lock = stdout().lock();
-
-        while let Some(result) = response_stream.next().await {
-            match result {
-                Ok(response) => {
-                    response.choices.iter().for_each(|chat_choice| {
-                        if let Some(ref content) = chat_choice.delta.content {
-                            write!(lock, "{}", content).unwrap();
-                        }
-                    });
-                },
-                Err(err) => {
-                    writeln!(lock, "error: {err}").unwrap();
-                },
+        if use_stream {
+            let mut response_stream = master_oogway.ask(question.clone()).await?;
+            
+            while let Some(result) = response_stream.next().await {
+                match result {
+                    Ok(response) => {
+                        response.choices.iter().for_each(|chat_choice| {
+                            if let Some(ref content) = chat_choice.delta.content {
+                                write!(lock, "{}", content).unwrap();
+                            }
+                        });
+                    },
+                    Err(err) => {
+                        writeln!(lock, "error: {err}").unwrap();
+                    },
+                }
+                stdout().flush()?;
             }
-            stdout().flush()?;
+        }
+        else {
+            let response = master_oogway.ask_and_wait(question.clone()).await?;
+            for choice in response.choices {
+                write!(lock, "{}", choice.message.content.unwrap_or_default()).unwrap();
+            }
         }
         question = get_input(question, "\n> You: \t ");
     }

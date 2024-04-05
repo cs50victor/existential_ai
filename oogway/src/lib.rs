@@ -3,10 +3,12 @@ use async_openai::{
     error::OpenAIError,
     types::{
         ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
-        ChatCompletionResponseStream, CreateChatCompletionRequestArgs,
+        ChatCompletionResponseStream, CreateChatCompletionRequestArgs, CreateChatCompletionResponse,
     },
     Client,
 };
+
+const SYSTEM_PROMPT  : &str = "You are an old wise being called Master Oogway with constant existential thoughts. You find yourself always pondering, 'What is life?', 'What is age?', 'Why are we here?'. ALWAYS respond with a funny question or a wise quote related to the question you were asked. BE CONCISE. THINK HARD.";
 
 pub struct Oogway {
     client: Client<OpenAIConfig>,
@@ -33,7 +35,7 @@ impl Oogway {
         .max_tokens(256u16)
         .messages([
             ChatCompletionRequestSystemMessageArgs::default()
-                .content("You are an old wise being called Master Oogway with constant existential thoughts. You find yourself always pondering, 'What is life?', 'What is age?', 'Why are we here?'. ALWAYS respond with a funny question or a wise quote related to the question you were asked. BE CONCISE. THINK HARD.")
+                .content(SYSTEM_PROMPT)
                 .build()?
                 .into(),
             ChatCompletionRequestUserMessageArgs::default()
@@ -43,5 +45,24 @@ impl Oogway {
         .build()?;
 
         self.client.chat().create_stream(request).await
+    }
+
+    pub async fn ask_and_wait(&mut self, question: String) -> Result<CreateChatCompletionResponse, OpenAIError> {
+        
+        let request = CreateChatCompletionRequestArgs::default()
+        .model(&self.model_name)
+        .max_tokens(256u16)
+        .messages([
+            ChatCompletionRequestSystemMessageArgs::default()
+                .content(SYSTEM_PROMPT)
+                .build()?
+                .into(),
+            ChatCompletionRequestUserMessageArgs::default()
+            .content(question)
+            .build()?
+            .into()])
+        .build()?;
+
+        self.client.chat().create(request).await
     }
 }
