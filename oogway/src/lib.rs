@@ -11,6 +11,7 @@ use async_openai::{
 
 const SYSTEM_PROMPT  : &str = "You are an old wise being called Master Oogway with constant existential thoughts. You find yourself always pondering, 'What is life?', 'What is age?', 'Why are we here?'. ALWAYS respond with a funny question or a wise quote related to the question you were asked. BE CONCISE. THINK HARD.";
 
+#[derive(Clone)]
 pub struct Oogway {
     client: Client<OpenAIConfig>,
     model_name: String,
@@ -64,4 +65,23 @@ impl Oogway {
 
         self.client.chat().create(request).await
     }
+}
+
+pub async fn ask_helper(
+    oogway: Oogway,
+    question: String,
+) -> Result<ChatCompletionResponseStream, OpenAIError> {
+    let request = CreateChatCompletionRequestArgs::default()
+        .model(&oogway.model_name)
+        .max_tokens(256u16)
+        .messages([
+            ChatCompletionRequestSystemMessageArgs::default()
+                .content(SYSTEM_PROMPT)
+                .build()?
+                .into(),
+            ChatCompletionRequestUserMessageArgs::default().content(question).build()?.into(),
+        ])
+        .build()?;
+
+    oogway.client.chat().create_stream(request).await
 }

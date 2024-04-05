@@ -1,5 +1,5 @@
 use futures::StreamExt;
-use oogway::Oogway;
+use oogway::{ask_helper, Oogway};
 use std::{
     error::Error,
     io::{stdin, stdout, Write},
@@ -24,7 +24,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         print!("\n> Oogway : \n\t");
 
         if use_stream {
-            let mut response_stream = master_oogway.ask(question.clone()).await?;
+            // let mut response_stream = ask_helper(master_oogway, question) master_oogway.ask(question.clone()).await?;
+            let mut response_stream = ask_helper(master_oogway.clone(), question.clone()).await?;
 
             while let Some(result) = response_stream.next().await {
                 match result {
