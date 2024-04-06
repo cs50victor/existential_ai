@@ -7,7 +7,7 @@ use std::{
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let mut master_oogway = Oogway::new()?;
+    let master_oogway = Oogway::new()?;
 
     let mut question =
         "Hello, welcome to Wendy's! Thank you for choosing us today. How can I assist you?"

@@ -34,7 +34,7 @@ impl Oogway {
     }
 
     pub async fn ask(
-        &mut self,
+        &self,
         question: String,
     ) -> AskResult {
         let request = CreateChatCompletionRequestArgs::default()
@@ -53,7 +53,7 @@ impl Oogway {
     }
 
     pub async fn ask_and_wait(
-        &mut self,
+        &self,
         question: String,
     ) -> AskAndWaitResult {
         let request = CreateChatCompletionRequestArgs::default()
