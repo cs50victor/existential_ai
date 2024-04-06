@@ -48,15 +48,17 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 write!(lock, "{}", choice.message.content.unwrap_or_default()).unwrap();
             }
         }
-        question = get_input(question, "\n> You: \t ");
+        get_input(&mut question, "\n> You: \t ");
+        println!("curr question - {question}");
     }
 }
 
-pub fn get_input(mut input: String, prompt: &str) -> String {
+pub fn get_input(input: &mut String, prompt: &str){
     println!("{}", prompt);
-    match stdin().read_line(&mut input) {
+    input.clear();
+    match stdin().read_line(input) {
         Ok(_goes_into_input_above) => {},
         Err(_no_updates_is_fine) => {},
     }
-    input.trim().to_string()
+    *input = input.trim().to_string();
 }

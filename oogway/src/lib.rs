@@ -17,6 +17,11 @@ pub struct Oogway {
     model_name: String,
 }
 
+// so i don't have to import async-openai in the python or typescript crates
+
+pub type AskResult = Result<ChatCompletionResponseStream, OpenAIError>;
+pub type AskAndWaitResult = Result<CreateChatCompletionResponse, OpenAIError>;
+
 impl Oogway {
     pub fn new() -> anyhow::Result<Self, String> {
         std::env::var("OPENAI_API_KEY").map_err(|e| format!("OPENAI_API_KEY {e}"))?;
@@ -31,7 +36,7 @@ impl Oogway {
     pub async fn ask(
         &mut self,
         question: String,
-    ) -> Result<ChatCompletionResponseStream, OpenAIError> {
+    ) -> AskResult {
         let request = CreateChatCompletionRequestArgs::default()
             .model(&self.model_name)
             .max_tokens(256u16)
@@ -50,7 +55,7 @@ impl Oogway {
     pub async fn ask_and_wait(
         &mut self,
         question: String,
-    ) -> Result<CreateChatCompletionResponse, OpenAIError> {
+    ) -> AskAndWaitResult {
         let request = CreateChatCompletionRequestArgs::default()
             .model(&self.model_name)
             .max_tokens(256u16)
